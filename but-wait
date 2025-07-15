@@ -1,0 +1,44 @@
+javascript:(function() {
+  (() => {
+    /* ── Your six Drive IDs + labels ── */
+    const IMAGES = [
+      { id: '11xcOhOun9AuDiWB1NM3Z15rXCfCbSdIr', name: '14,201 Kinder Buenos' },
+      { id: '1uuveWeNinDA78qkjmbq5kSWNDP2LVaRp', name: '26 Months of Ozempic' },
+      { id: '15hlObq0Zxtlgi8d7G-YRTQPCbkcauExp', name: 'a BBL' },
+      { id: '1dPtE6dMoOl_MBSPJZ0esHNsLDsZm6r9_', name: 'gold apple watch' },
+      { id: '1YYfR6PAFE-LX_NJ_Uhw_6JUmF72zrGYE', name: 'a kitchen remodel' },
+      { id: '1OotkFNXDIiXyPSxa1FswBpT9IMFcEIzV', name: 'subaru uwu' }
+    ];
+
+    const WRAP_ID = '__floatDrivePhotos__';
+    const IMG_W = 180;   // px
+    const LOOP_S = 36;   // sec per drift cycle
+
+    try {
+      /* —— toggle off if already there —— */
+      const old = document.getElementById(WRAP_ID);
+      if (old) {
+        old.remove();
+        console.log('🧹 Floating-photo overlay removed.');
+        return;
+      }
+
+      /* —— build wrapper —— */
+      const wrap = Object.assign(document.createElement('div'), { id: WRAP_ID });
+      Object.assign(wrap.style, {
+        position: 'fixed',
+        inset: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 2147483647
+      });
+      document.body.appendChild(wrap);
+
+      /* —— style sheet —— */
+      const css = document.createElement('style');
+      css.textContent = `
+        @keyframes wander {
+          0%   { transform: translate(0,0) rotate(0deg); }
+          25%  { transform: translate(65vw,-15vh) rotate(20deg); }
+          50%  { transform: translate(25vw,60vh) rotate(-10deg); }
+          75%  { transform:
