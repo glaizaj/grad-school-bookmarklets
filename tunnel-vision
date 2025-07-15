@@ -1,0 +1,55 @@
+javascript:(function() {
+  (() => {
+    /*––––– editable whitelist –––––*/
+    const KEEP = [
+      "start working immediately",
+      "available online",
+      "complete the program in one year"
+    ];
+
+    /*––––– helpers –––––*/
+    const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const keepRe = new RegExp(KEEP.map(esc).join('|'), 'gi');
+
+    // mask any chunk that is NOT an allowed phrase
+    const redact = txt =>
+      txt
+        .replace(keepRe, m => `@@@${m}@@@`)      // mark keepers
+        .split(/@@@/)                           // split text / keepers
+        .map(chunk =>
+          KEEP.some(k => k.toLowerCase() === chunk.trim().toLowerCase())
+            ? chunk                              // leave phrase as-is
+            : chunk.replace(/./g, '█')           // mask everything else
+        )
+        .join('');
+
+    try {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: node =>
+            node.parentNode &&
+            ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'TEXTAREA'].includes(
+              node.parentNode.nodeName
+            )
+              ? NodeFilter.FILTER_REJECT
+              : NodeFilter.FILTER_ACCEPT
+        },
+        false
+      );
+
+      let changed = 0;
+      for (let node; (node = walker.nextNode()); ) {
+        const masked = redact(node.textContent);
+        if (masked !== node.textContent) {
+          node.textContent = masked;
+          changed++;
+        }
+      }
+      console.log(`✅ Redaction complete. Nodes modified: ${changed}`);
+    } catch (err) {
+      console.error('❌ Redaction failed:', err);
+    }
+  })();
+})();
