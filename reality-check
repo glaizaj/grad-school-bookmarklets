@@ -1,0 +1,70 @@
+javascript:(function() {
+  (() => {
+    const ID = '__flashRealityOverlay__';
+
+    try {
+      /*—— remove any previous instance ——*/
+      const previous = document.getElementById(ID);
+      if (previous && typeof previous._cleanup === 'function') {
+        previous._cleanup();
+        console.log('Old overlay removed.');
+      }
+
+      /*—— create full-screen host ——*/
+      const host = Object.assign(document.createElement('div'), { id: ID });
+      Object.assign(host.style, {
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none', // keeps page usable
+        zIndex: 2147483647     // top of the stack
+      });
+      document.documentElement.appendChild(host);
+
+      /*—— isolate with shadow DOM (falls back if blocked) ——*/
+      const root = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
+
+      /*—— styles + markup ——*/
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes blink {
+          0%, 100% { opacity: 1 }
+          50% { opacity: 0 }
+        }
+        .msg {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          margin: 0;
+          font: 900 clamp(2rem, 12vw, 10rem)/1 system-ui, sans-serif;
+          color: #e00;
+          text-align: center;
+          white-space: pre-wrap;
+          animation: blink 0.3s steps(1, end) infinite;
+        }`;
+      root.appendChild(style);
+
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.textContent = 'STOP!';
+      root.appendChild(div);
+
+      /*—— flip phrases ——*/
+      const words = ['STOP!', 'Are you delaying reality?'];
+      let i = 0;
+      const timer = setInterval(() => {
+        i ^= 1; // toggle 0/1
+        div.textContent = words[i];
+      }, 300);
+
+      /*—— expose cleanup ——*/
+      host._cleanup = () => {
+        clearInterval(timer);
+        host.remove();
+      };
+
+      console.log('✅ Flash overlay active. Run again to turn it off.');
+    } catch (err) {
+      console.error('❌ Flash overlay failed:', err);
+    }
+  })();
+})();
