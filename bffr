@@ -1,0 +1,59 @@
+javascript:(function() {
+  (() => {
+    const ID = '__maybeTryThisOverlay__';
+    const REDIRECT_URL = 'https://www.linkedin.com/jobs/search/';
+
+    try {
+      /*—— remove any previous instance ——*/
+      const prev = document.getElementById(ID);
+      if (prev && typeof prev._cleanup === 'function') {
+        prev._cleanup();
+        console.log('Old overlay removed.');
+      }
+
+      /*—— create overlay host ——*/
+      const host = Object.assign(document.createElement('div'), { id: ID });
+      Object.assign(host.style, {
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 2147483647, // stay on top
+        background: 'rgba(255,255,255,0.85)'
+      });
+      document.documentElement.appendChild(host);
+
+      /*—— isolate styles with shadow DOM if available ——*/
+      const root = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
+
+      root.innerHTML = `
+        <style>
+          .msg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font: 900 clamp(2rem, 10vw, 8rem)/1.1 system-ui, sans-serif;
+            color: #000;
+            text-align: center;
+            white-space: pre-wrap;
+          }
+        </style>
+        <div class="msg">Maybe try this....</div>
+      `;
+
+      /*—— redirect after a short pause ——*/
+      const timer = setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+      }, 2000);
+
+      /*—— expose cleanup so re-running the snippet removes it ——*/
+      host._cleanup = () => {
+        clearTimeout(timer);
+        host.remove();
+      };
+
+      console.log('✅ Message displayed; redirecting soon. Run again to cancel.');
+    } catch (err) {
+      console.error('❌ Could not display message / redirect:', err);
+    }
+  })();
+})();
